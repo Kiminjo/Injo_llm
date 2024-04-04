@@ -22,7 +22,7 @@ class BaseLLM:
     ):
         # Set params for class
         self.api_key = api_key
-        self.chatbot = None 
+        self.chatbot = None
 
         # Set base llm model
         self.llm = self.set_llm(llm_name=llm_name, model_name=model_name)
@@ -39,14 +39,14 @@ class BaseLLM:
         self.human_prompt = HumanMessagePromptTemplate.from_template(human_prompt)
 
     def train_rag(self, documents: str, db_path: Union[str, Path]):
-        # Convert str type of document to Document type 
+        # Convert str type of document to Document type
         documents = Document(documents)
 
-        # Set embeddings and DB 
+        # Set embeddings and DB
         embeddings = OpenAIEmbeddings(openai_api_key=self.api_key)
         db = FAISS.from_documents([documents], embeddings)
 
-        # Save the vector store 
+        # Save the vector store
         db.save_local(db_path)
 
     def setup_rag(self, db_path: Union[str, Path]):
@@ -56,10 +56,9 @@ class BaseLLM:
 
         # Set the retriever
         retriever = db.as_retriever()
-        self.chatbot = RetrievalQA.from_llm(llm=self.llm,
-                                            retriever=retriever,
-                                            return_source_documents=True)
-        
+        self.chatbot = RetrievalQA.from_llm(
+            llm=self.llm, retriever=retriever, return_source_documents=True
+        )
 
     def generate(self, matched_input: Dict):
         if self.chatbot is None:
@@ -67,9 +66,9 @@ class BaseLLM:
                 [self.system_prompt, self.human_prompt]
             )
             self.message = chat_template.format_messages(**matched_input)
-            
+
             answer = self.llm.invoke(self.message)
-        else: 
+        else:
             system_message = self.system_prompt.format_messages(**matched_input)[0].content
             human_message = self.human_prompt.format_messages(**matched_input)[0].content
             self.message = f"{system_message}\n{human_message}"
