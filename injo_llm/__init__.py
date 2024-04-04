@@ -1,1 +1,1 @@
-from .base import TemplateLLM
+from .base import BaseLLM
