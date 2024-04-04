@@ -9,7 +9,7 @@ os.chdir(Path(__file__).parents[1])
 sys.path.append(str(Path(__file__).parents[1]))
 
 # Custom Libraries
-from injo_llm import TemplateLLM
+from injo_llm import BaseLLM
 
 
 if __name__ == "__main__":
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     api_key = api_key["OpenAI"]["API"]
 
     # Get LLM Model
-    llm_model = TemplateLLM(api_key=api_key)
+    llm_model = BaseLLM(api_key=api_key)
 
     # Set prompt
     system_prompt = "너는 지금부터 {talk}로 대답해줘."
