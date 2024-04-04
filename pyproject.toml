@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "injo-llm"
+version = "0.1.0"
+description = ""
+authors = ["Kiminjo <deulseong1121@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10.4"
+langchain = "^0.1.14"
+langchain-openai = "^0.1.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
