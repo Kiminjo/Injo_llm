@@ -3,3 +3,7 @@
 
 # API Key 
 api/
+
+# Python activation file 
+**/__pycache__/
+**/.DS_Store
