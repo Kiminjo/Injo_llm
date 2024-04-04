@@ -7,3 +7,6 @@ api/
 # Python activation file 
 **/__pycache__/
 **/.DS_Store
+
+# DB 
+db/
