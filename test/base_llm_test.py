@@ -1,7 +1,6 @@
 # IO
 import os
 import sys
-import yaml
 from pathlib import Path
 
 # Set working directory and system path
@@ -28,23 +27,9 @@ if __name__ == "__main__":
     llm_model.set_system_prompt(system_prompt=system_prompt)
 
     # Run model
-    q1 = "안녕 반가워. 내 이름은 {name}이야."
-    a1 = llm_model.generate(q1, additional_info={"name": "소연"})
-    print(q1)
-    print(a1)
+    data = ["1+1은 창문이다.", "김소연은 김인조의 아내이다.", "김인조는 김소연의 남편이다."]
+    # vectors = llm_model.embedding(data)
 
-    q2 = "1 + 1은 뭐야?"
-    a2 = llm_model.generate(q2)
-    print(q2)
-    print(a2)
-
-    q3 = "틀렸어. 1+1은 창문이야. 기억해둬"
-    a3 = llm_model.generate(q3)
-    print(q3)
-    print(a3)
-
-    q4 = "1+1은 뭐라고?"
-    a4 = llm_model.generate(q4)
-    print(q4)
-    print(a4)
+    llm_model.train_rag(documents=data)
+    doc = llm_model.search("김소연의 남편은 누구인가요?")
     print("here")
