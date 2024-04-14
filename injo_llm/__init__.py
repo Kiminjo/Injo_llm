@@ -1,1 +1,1 @@
-from .base import BaseLLM
+from .langchain.base import LangchainBaseLLM

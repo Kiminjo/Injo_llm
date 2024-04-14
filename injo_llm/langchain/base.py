@@ -16,7 +16,7 @@ from typing import Dict, Union
 from pathlib import Path
 
 
-class BaseLLM:
+class LangchainBaseLLM:
     def __init__(
         self, api_key: str, llm_name: str = "openai", model_name: str = "gpt-3.5-turbo"
     ):
