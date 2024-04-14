@@ -9,26 +9,42 @@ os.chdir(Path(__file__).parents[1])
 sys.path.append(str(Path(__file__).parents[1]))
 
 # Custom Libraries
-from injo_llm import BaseLLM
+from injo_llm import BaseOpenAILLM
 
 
 if __name__ == "__main__":
     # Get API Key
-    with open("api/api_info.yaml", "r") as f:
-        api_key = yaml.load(f, Loader=yaml.FullLoader)
+    api_src = Path("api/api.txt")
+    with open(api_src, "r") as f:
+        api_key = f.read().strip()
         f.close()
-    api_key = api_key["OpenAI"]["API"]
 
     # Get LLM Model
-    llm_model = BaseLLM(api_key=api_key)
+    llm_model = BaseOpenAILLM(api_key=api_key)
 
     # Set prompt
-    system_prompt = "너는 지금부터 {talk}로 대답해줘."
-    human_prompt = "{city}에 대해 설명해줘."
+    system_prompt = "너는 대답할때마다, '용'으로 끝나는 문장을 사용해. 예를 들어, '안녕' 대신 '안녕용' 이렇게 말이야."  
 
     llm_model.set_system_prompt(system_prompt=system_prompt)
-    llm_model.set_human_prompt(human_prompt=human_prompt)
 
     # Run model
-    answer = llm_model.generate(matched_input={"talk": "반말", "city": "서울"})
-    print(answer)
+    q1 = "안녕 반가워. 내 이름은 {name}이야."
+    a1 = llm_model.generate(q1, additional_info={"name": "소연"})
+    print(q1)
+    print(a1)
+
+    q2 = "1 + 1은 뭐야?"
+    a2 = llm_model.generate(q2)
+    print(q2)
+    print(a2)
+
+    q3 = "틀렸어. 1+1은 창문이야. 기억해둬"
+    a3 = llm_model.generate(q3)
+    print(q3)
+    print(a3)
+
+    q4 = "1+1은 뭐라고?"
+    a4 = llm_model.generate(q4)
+    print(q4)
+    print(a4)
+    print("here")
