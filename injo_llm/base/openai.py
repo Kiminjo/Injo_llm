@@ -1,12 +1,10 @@
-# Open AI and DB
+# Open AI Model
 from openai import OpenAI
-import faiss
 
 # IO
 import os 
 import sys 
 import numpy as np
-import pickle
 from pathlib import Path
 from typing import List, Union, Dict
 
