@@ -100,25 +100,27 @@ class RAG:
         results = [documents[i] for i in I[0] if i != -1]
         return results
 
-    def generate_simple(self, prompt: str):
+    def generate_simple(self, prompt: str, params: Dict = None):
         """
         Generate the answer based on RAGed information 
          
         Args:
             - prompt: str
                 The prompt for the answer
+            - params: Dict
+                The parameters for the answer
         """
         # Search the related documents
-        related_doc = self.llm_model.search(prompt)
+        related_doc = self.search(prompt)
         
         # Set the prompt
         self.llm_model.set_system_prompt(system_prompt=retrieval_base_prompt, additional_info={"info": related_doc})
         
         # Generate the answer
-        answer = self.llm_model.generate(prompt)
+        answer = self.llm_model.generate(prompt, params=params)
         return answer
     
-    def generate(self, prompt: str, query_info: Dict, additional_info: Dict = None, top_k: int = 5):
+    def generate(self, prompt: str, query_info: Dict, additional_info: Dict = None, params: Dict = None):
         """
         Generate the answer from the prompt
         
@@ -129,6 +131,11 @@ class RAG:
                 The information for the query
             - additional_info: Dict
                 The additional information to fill in the prompt
+            - params: Dict
+                The parameters for the model
+                 
+                - temperature
+                - top_p
         
         Returns:
             - answer: str
@@ -162,5 +169,5 @@ class RAG:
             related_doc = self.search(query)
             additional_info[key] = "\n".join(related_doc)
 
-        return self.llm_model.generate(prompt, additional_info=additional_info)
+        return self.llm_model.generate(prompt, additional_info=additional_info, params=params)
     
