@@ -1,12 +1,11 @@
 # Open AI and DB
 from openai import OpenAI
-import faiss
+from openai.lib.azure import AzureOpenAI
 
 # IO
 import os 
 import sys 
 import numpy as np
-import pickle
 from pathlib import Path
 from typing import List, Union, Dict
 
@@ -17,16 +16,36 @@ sys.path.append(str(Path(__file__).parents[2]))
 # Custom Libraries
 from injo_llm.utils.prompt import fill_prompt
 
-class BaseOpenAILLM:
-    def __init__(self, api_key: str, chat_model: str = "gpt-3.5-turbo", embedding_model: str = "text-embedding-3-small"):
+class BaseLLM:
+    def __init__(self, api_key: str, model_type: str = "openai", chat_model: str = "gpt-3.5-turbo", embedding_model: str = "text-embedding-3-small", api_version: str = None, endpoint: str = None):
         # Define the OpenAI client
-        self.llm_client = OpenAI(api_key=api_key)
+        self.model_type = model_type
         self.chat_model_name = chat_model 
         self.embedding_model_name = embedding_model
+        self.api_version = api_version
+        self.endpoint = endpoint
+
+        # Define the LLM client 
+        self.llm_client = OpenAI(api_key=api_key)
 
         # Define the message 
         self.input_prompts = []
         self._speaker = []
+
+    def load_llm(self, api_key: str): 
+        """
+        Load the LLM client
+        
+        Args:
+            - api_key: str
+                The API key for the LLM 
+        """
+        if self.model_type == "openai":
+            self.llm_client = OpenAI(api_key=api_key)
+        elif self.model_type == "azure":
+            self.llm_client = AzureOpenAI(api_key=api_key, 
+                                          api_version=self.api_version, 
+                                          endpoint=self.endpoint)
 
     def set_system_prompt(self, system_prompt: Union[str, List[str]], additional_info: Union[Dict, List[Dict]] = None):
         """
@@ -126,7 +145,7 @@ class BaseOpenAILLM:
         embedding_vector = np.array(embedding_vector)
         return embedding_vector
 
-    def generate(self, prompt: str, additional_info: Dict = None):
+    def generate(self, prompt: str, additional_info: Dict = None, params: Dict = None):
         """
         Generate the answer from the prompt
         
@@ -135,6 +154,15 @@ class BaseOpenAILLM:
                 The prompt for the chat
             - additional_info: Dict
                 The additional information to fill in the prompt
+            - params: Dict
+                The parameters for the model
+                
+                - temperature
+                - top_p 
+                - n
+                - frequency_penalty
+                - stream
+                - seed
         
         Returns:
             - answer: str
@@ -155,14 +183,15 @@ class BaseOpenAILLM:
         # Generate the answer 
         answer = self.llm_client.chat.completions.create(
             model=self.chat_model_name,
-            messages=self.input_prompts
+            messages=self.input_prompts,
+            **params
         )
         answer = answer.choices[0].message.content
 
         # Save the answer to the chat history 
         self.input_prompts.append({
             "role": "assistant",
-            "content": answer
+            "content": answer,
         })
         self._speaker.append("assistant")
         return answer
