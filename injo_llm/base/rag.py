@@ -14,15 +14,30 @@ os.chdir(Path(__file__).parents[2])
 sys.path.append(str(Path(__file__).parents[2]))
 
 # Custom Libraries
-from injo_llm.base.openai import BaseOpenAILLM
+from injo_llm import BaseOpenAILLM, BaseAzureLLM
 from injo_llm.prompts.retrieval import retrieval_base_prompt
 from injo_llm.utils.prompt import fill_prompt
 
 class RAG:
-    def __init__(self, llm_model: BaseOpenAILLM = None):
+    def __init__(self, llm_model: Union[BaseOpenAILLM, BaseAzureLLM] = None, openai_api_key: str = None):
         if llm_model is not None:
-            self.llm_model = self.set_llm_model(llm_model)
-    
+            self.set_llm_model(llm_model)
+        else:
+            # Set LLM model 
+            self.llm_model = llm_model
+
+        self.openai_api_key = openai_api_key
+            
+        # Set the embedding model 
+        if isinstance(self.llm_model, BaseAzureLLM) and openai_api_key is None:
+            raise ValueError("Embedding is not available in BaseAzureLLM. Please provide the OpenAI API key")
+        elif isinstance(self.llm_model, BaseAzureLLM) and openai_api_key is not None:
+            self.embedding_model = BaseOpenAILLM(api_key=openai_api_key)
+        elif isinstance(self.llm_model, BaseOpenAILLM):
+            self.embedding_model = self.llm_model
+        elif self.llm_model is None:
+            pass
+
     def fit(self, documents: Union[str, List[str]], db_path: Union[str, Path] = "db/rag.index", document_path: Union[str, Path] = "db/documents.pkl"):
         """
         Train the RAG model
@@ -48,7 +63,7 @@ class RAG:
         document_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Set embeddings and DB
-        embedding_vectors = self.llm_model.embedding(documents)
+        embedding_vectors = self.embedding_model.embedding(documents)
         faiss_index = faiss.IndexFlatL2(embedding_vectors.shape[1])
         faiss_index.add(embedding_vectors)
         
@@ -58,7 +73,7 @@ class RAG:
             pickle.dump(documents, f)
             f.close()
     
-    def set_llm_model(self, llm_model: BaseOpenAILLM):
+    def set_llm_model(self, llm_model: Union[BaseOpenAILLM, BaseAzureLLM]):
         """
         Set the LLM model for the RAG model
         
@@ -66,6 +81,13 @@ class RAG:
             - llm_model: BaseOpenAILLM
         """
         self.llm_model = llm_model
+
+        if isinstance(self.llm_model, BaseAzureLLM) and self.openai_api_key is None:
+            raise ValueError("Embedding is not available in BaseAzureLLM. Please provide the OpenAI API key")
+        elif isinstance(self.llm_model, BaseAzureLLM) and self.openai_api_key is not None:
+            self.embedding_model = BaseOpenAILLM(api_key=self.openai_api_key)
+        elif isinstance(self.llm_model, BaseOpenAILLM):
+            self.embedding_model = self.llm_model
 
     def search(self, query: str, db_path: Union[str, Path] = "db/rag.index", document_path: Union[str, Path] = "db/documents.pkl", top_k: int = 5):
         """
@@ -92,7 +114,7 @@ class RAG:
             f.close()
 
         # Get the embedding from the query
-        query_embedding = self.llm_model.embedding(query)
+        query_embedding = self.embedding_model.embedding(query)
         query_embedding = query_embedding[0]
 
         # Search the DB
