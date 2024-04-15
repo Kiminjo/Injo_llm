@@ -20,11 +20,6 @@ if __name__ == "__main__":
         f.close()
 
     # Get LLM Model
-    model_type = "azure"
-    chat_model = "gpt-3.5-turbo-1106"
-    api_version = "2023-12-01-preview"
-    endpoint = "https://openapi-australia-east-selectstar.openai.azure.com/openai/deployments/default-gpt-35/chat/completions?api-version=2023-07-01-preview"
-
     llm_model = BaseLLM(api_key=api_key, 
                               model_type=model_type, 
                               chat_model=chat_model, 
