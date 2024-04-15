@@ -9,7 +9,7 @@ os.chdir(Path(__file__).parents[1])
 sys.path.append(str(Path(__file__).parents[1]))
 
 # Custom Libraries
-from injo_llm import BaseOpenAILLM
+from injo_llm import BaseOpenAILLM, RAG
 from injo_llm.prompts.retrieval import retrieval_base_prompt 
 
 if __name__ == "__main__":
@@ -21,6 +21,7 @@ if __name__ == "__main__":
 
     # Get LLM Model
     llm_model = BaseOpenAILLM(api_key=api_key)
+    rag_model = RAG()
 
     # Set prompt
     system_prompt = "너는 대답할때마다, '용'으로 끝나는 문장을 사용해. 예를 들어, '안녕' 대신 '안녕용', '잘 알았어요.' 대신 '잘 알았어용' 이렇게 말이야."  
@@ -32,11 +33,8 @@ if __name__ == "__main__":
     # vectors = llm_model.embedding(data)
 
     # Search data using query 
-    llm_model.fit_rag(documents=data)
-    related_doc = llm_model.search("김소연의 남편은 누구인가요?")
-
-    # Make answer using the related document
-    llm_model.set_system_prompt(system_prompt=retrieval_base_prompt, additional_info={"info": related_doc})
-    answer = llm_model.generate("김소연의 남편은 누구인가요?")
+    rag_model.set_llm_model(llm_model=llm_model)
+    rag_model.fit(documents=data)
+    answer = rag_model.generate_simple("김소연의 남편은 누구인가요?")
 
     print("here")
