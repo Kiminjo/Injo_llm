@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 import numpy as np
 import pickle
-from typing import List, Union
+from typing import List, Union, Dict
 
 # Vector DB 
 import faiss
@@ -16,6 +16,7 @@ sys.path.append(str(Path(__file__).parents[2]))
 # Custom Libraries
 from injo_llm.base.base import BaseOpenAILLM
 from injo_llm.prompts.retrieval import retrieval_base_prompt
+from injo_llm.utils.prompt import fill_prompt
 
 class RAG:
     def __init__(self, llm_model: BaseOpenAILLM = None):
@@ -91,7 +92,7 @@ class RAG:
             f.close()
 
         # Get the embedding from the query
-        query_embedding = self.embedding(query)
+        query_embedding = self.llm_model.embedding(query)
         query_embedding = query_embedding[0]
 
         # Search the DB
@@ -117,6 +118,49 @@ class RAG:
         answer = self.llm_model.generate(prompt)
         return answer
     
+    def generate(self, prompt: str, query_info: Dict, additional_info: Dict = None, top_k: int = 5):
+        """
+        Generate the answer from the prompt
+        
+        Args:
+            - prompt: str
+                The prompt for the chat
+            - query_info: Dict
+                The information for the query
+            - additional_info: Dict
+                The additional information to fill in the prompt
+        
+        Returns:
+            - answer: str
+                The answer from the model
 
-         
+        Example: 
+            prompt = '''
+                You have to answer about {topic}.
 
+                [Basic Information]
+                {basic_info}
+
+                [Related Information]
+                {related_info}
+                '''
+
+            additional_info = {"topic": "Othani Shohei"}
+            query_info = {
+                "basic_info": "Who is Othani Shohei?", 
+                "related_info": "How's the Dodgers performing in the 2024 season"
+            }
+
+            answer = rag_model.generate(prompt, query_info, additional_info)
+        """
+        # Set additional information 
+        if additional_info is None:
+            additional_info = {}
+
+        # Search the related documents
+        for key, query in query_info.items():
+            related_doc = self.search(query)
+            additional_info[key] = "\n".join(related_doc)
+
+        return self.llm_model.generate(prompt, additional_info=additional_info)
+    
