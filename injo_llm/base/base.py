@@ -10,9 +10,6 @@ import pickle
 from pathlib import Path
 from typing import List, Union, Dict
 
-# ETC 
-from tqdm import tqdm
-
 # Set working directory and system path
 os.chdir(Path(__file__).parents[2])
 sys.path.append(str(Path(__file__).parents[2]))
@@ -56,8 +53,13 @@ class BaseOpenAILLM:
                 "content": prompt
             }
             chat_system_prompt.append(sys_one_talk)
-        self.input_prompts = chat_system_prompt + self.input_prompts
-        self._speaker = ["system"] * len(chat_system_prompt) + self._speaker
+        if "system" in self._speaker:
+            user_idx = len(self._speaker) - self._speaker[::-1].index("system") - 1
+            self.input_prompts = self.input_prompts[:user_idx] + chat_system_prompt + self.input_prompts[user_idx:]
+            self._speaker = self._speaker[:user_idx] + ["system"] * len(chat_system_prompt) + self._speaker[user_idx:]
+        else:
+            self.input_prompts = chat_system_prompt + self.input_prompts
+            self._speaker = ["system"] * len(chat_system_prompt) + self._speaker
 
     def set_human_prompt(self, human_prompt: Union[str, List[str]], additional_info: Union[Dict, List[Dict]] = None):
         """
@@ -117,7 +119,7 @@ class BaseOpenAILLM:
         embedding_vector = np.array(embedding_vector)
         return embedding_vector
     
-    def train_rag(self, documents: Union[str, List[str]], db_path: Union[str, Path] = "db/rag.index", document_path: Union[str, Path] = "db/documents.pkl"):
+    def fit_rag(self, documents: Union[str, List[str]], db_path: Union[str, Path] = "db/rag.index", document_path: Union[str, Path] = "db/documents.pkl"):
         """
         Train the RAG model
         
@@ -126,6 +128,8 @@ class BaseOpenAILLM:
                 The documents for the RAG model
             - db_path: str or Path
                 The path to save the database
+            - document_path: str or Path
+                The path to save the document
         """
         # Convert str type of document to Document type
         if isinstance(documents, str):
@@ -149,7 +153,6 @@ class BaseOpenAILLM:
         with open(document_path, "wb") as f:
             pickle.dump(documents, f)
             f.close()
-
 
     def search(self, query: str, db_path: Union[str, Path] = "db/rag.index", document_path: Union[str, Path] = "db/documents.pkl", top_k: int = 5):
         """
@@ -181,7 +184,7 @@ class BaseOpenAILLM:
 
         # Search the DB
         _, I = faiss_index.search(np.array([query_embedding]), top_k)
-        results = [documents[i] for i in I[0]]
+        results = [documents[i] for i in I[0] if i != -1]
         return results
 
     def generate(self, prompt: str, additional_info: Dict = None):
