@@ -114,7 +114,7 @@ class BaseLLM:
             self.input_prompts = chat_human_prompt + self.input_prompts
             self._speaker = ["user"] * len(chat_human_prompt) + self._speaker
 
-    def embedding(self, texts: Union[str, List[str]], dimensions: int = None) -> List[float]:
+    def embedding(self, texts: Union[str, List[str]]) -> List[float]:
         """
         Get the embedding from the prompt
         
@@ -130,20 +130,81 @@ class BaseLLM:
             texts = [texts]
 
         # Get the embedding
-        if dimensions is None:
-            embedding_vector = self.llm_client.embeddings.create(
-                model=self.embedding_model_name,
-                input=texts
-            )
-        else:
-            embedding_vector = self.llm_client.embeddings.create(
-                model=self.embedding_model_name,
-                input=texts,
-                dimensions=dimensions
-            )
+        embedding_vector = self.llm_client.embeddings.create(
+            model=self.embedding_model_name,
+            input=texts
+        )
         embedding_vector = [vector.embedding for vector in embedding_vector.data]
         embedding_vector = np.array(embedding_vector)
         return embedding_vector
+    
+    def fit_rag(self, documents: Union[str, List[str]], db_path: Union[str, Path] = "db/rag.index", document_path: Union[str, Path] = "db/documents.pkl"):
+        """
+        Train the RAG model
+        
+        Args:
+            - documents: str or List[str]
+                The documents for the RAG model
+            - db_path: str or Path
+                The path to save the database
+            - document_path: str or Path
+                The path to save the document
+        """
+        # Convert str type of document to Document type
+        if isinstance(documents, str):
+            documents = [documents]
+        if isinstance(db_path, str):
+            db_path = Path(db_path)
+        if isinstance(document_path, str):
+            document_path = Path(document_path)
+        
+        # Make save dir 
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        document_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Set embeddings and DB
+        embedding_vectors = self.embedding(documents)
+        faiss_index = faiss.IndexFlatL2(embedding_vectors.shape[1])
+        faiss_index.add(embedding_vectors)
+        
+        # Save the vector store and document as pickle
+        faiss.write_index(faiss_index, str(db_path))
+        with open(document_path, "wb") as f:
+            pickle.dump(documents, f)
+            f.close()
+
+    def search(self, query: str, db_path: Union[str, Path] = "db/rag.index", document_path: Union[str, Path] = "db/documents.pkl", top_k: int = 5):
+        """
+        Search the RAG model
+        
+        Args:
+            - query: str
+                The query for the search
+            - db_path: str or Path
+                The path to save the database
+            - document_path: str or Path
+                The path to save the document
+            - top_k: int
+                The number of top-k results to return
+        
+        Returns:
+            - results: List[str]
+                The top-k results from the search
+        """
+        # Load the DB and documents
+        faiss_index = faiss.read_index(str(db_path))
+        with open(document_path, "rb") as f:
+            documents = pickle.load(f)
+            f.close()
+
+        # Get the embedding from the query
+        query_embedding = self.embedding(query)
+        query_embedding = query_embedding[0]
+
+        # Search the DB
+        _, I = faiss_index.search(np.array([query_embedding]), top_k)
+        results = [documents[i] for i in I[0] if i != -1]
+        return results
 
     def generate(self, prompt: str, additional_info: Dict = None, params: Dict = None):
         """
