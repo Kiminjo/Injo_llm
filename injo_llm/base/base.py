@@ -95,7 +95,7 @@ class BaseOpenAILLM:
             self.input_prompts = chat_human_prompt + self.input_prompts
             self._speaker = ["user"] * len(chat_human_prompt) + self._speaker
 
-    def embedding(self, texts: Union[str, List[str]]) -> List[float]:
+    def embedding(self, texts: Union[str, List[str]], dimensions: int = None) -> List[float]:
         """
         Get the embedding from the prompt
         
@@ -111,10 +111,17 @@ class BaseOpenAILLM:
             texts = [texts]
 
         # Get the embedding
-        embedding_vector = self.llm_client.embeddings.create(
-            model=self.embedding_model_name,
-            input=texts
-        )
+        if dimensions is None:
+            embedding_vector = self.llm_client.embeddings.create(
+                model=self.embedding_model_name,
+                input=texts
+            )
+        else:
+            embedding_vector = self.llm_client.embeddings.create(
+                model=self.embedding_model_name,
+                input=texts,
+                dimensions=dimensions
+            )
         embedding_vector = [vector.embedding for vector in embedding_vector.data]
         embedding_vector = np.array(embedding_vector)
         return embedding_vector
