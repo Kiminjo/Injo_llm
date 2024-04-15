@@ -9,42 +9,42 @@ os.chdir(Path(__file__).parents[1])
 sys.path.append(str(Path(__file__).parents[1]))
 
 # Custom Libraries
-from injo_llm import BaseLLM
-
+from injo_llm import BaseOpenAILLM, RAG
+from injo_llm.prompts.retrieval import retrieval_base_prompt 
 
 if __name__ == "__main__":
-    # Set DB Path
-    db_path = Path("db")
-    db_path.mkdir(exist_ok=True, parents=True)
-
     # Get API Key
-    with open("api/api_info.yaml", "r") as f:
-        api_key = yaml.load(f, Loader=yaml.FullLoader)
-        f.close()
-    api_key = api_key["OpenAI"]["API"]
-
-    # Get Information
-    with open("api/info.txt", "r") as f:
-        info = f.read()
+    api_src = Path("api/api_info.yaml")
+    with open(api_src, "r") as f:
+        api_key = yaml.safe_load(f)["OpenAI"]["API"]
         f.close()
 
     # Get LLM Model
-    llm_model = BaseLLM(api_key=api_key)
-
-    # Set RAG Model
-    llm_model.train_rag(documents=info, db_path=db_path)
+    llm_model = BaseOpenAILLM(api_key=api_key)
+    rag_model = RAG()
 
     # Run model
-    llm_model2 = BaseLLM(api_key=api_key)
+    data = ["오타니 쇼헤이는 일본 출신의 야구 선수이다.", "오타니 쇼헤이는 미국 메이저리그의 로스앤젤레스 에인절스에서 활약하고 있다.", "오타니 쇼헤이는 투수이자 타자로 활약하고 있다.", "LA 다저스는 올해 역대급 전력을 구축했다.", "LA 다저스는 메이저리그에서 가장 강력한 팀 중 하나로 우승 가능성이 가장 높다."]
 
-    # Set prompt
-    system_prompt = "너는 지금부터 {talk}로 대답해줘."
-    human_prompt = "{person}에 대해 설명해줘."
+    # Search data using query 
+    rag_model.set_llm_model(llm_model=llm_model)
+    rag_model.fit(documents=data)
 
-    llm_model2.set_system_prompt(system_prompt=system_prompt)
-    llm_model2.set_human_prompt(human_prompt=human_prompt)
+    prompt = """
+    {name}에 대해 알고 싶어. 
+    그에 대해 설명 해줄래? 
+    특히, 올해 우승 가능성에 대해 알려줘.
+    
+    [기본 정보]
+    {basic_info}
+    
+    [상세 정보]
+    {related_info}
+    """
+    query_info = {
+        "basic_info": "오타니의 출신지는?",
+        "related_info": "LA다저스의 우승 가능성은?"
+    }
+    answer = rag_model.generate(prompt=prompt, query_info=query_info, additional_info={"name": "오나티 쇼헤이"}, top_k=1)
 
-    # Set RAG
-    llm_model2.setup_rag(db_path=db_path)
-    answer = llm_model2.generate(matched_input={"talk": "존댓말", "person": "오동근"})
-    print(answer)
+    print("here")
