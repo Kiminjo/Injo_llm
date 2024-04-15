@@ -9,7 +9,7 @@ os.chdir(Path(__file__).parents[1])
 sys.path.append(str(Path(__file__).parents[1]))
 
 # Custom Libraries
-from injo_llm import BaseOpenAILLM, RAG
+from injo_llm import BaseLLM, RAG
 from injo_llm.prompts.retrieval import retrieval_base_prompt 
 
 if __name__ == "__main__":
@@ -20,7 +20,16 @@ if __name__ == "__main__":
         f.close()
 
     # Get LLM Model
-    llm_model = BaseOpenAILLM(api_key=api_key)
+    model_type = "azure"
+    chat_model = "gpt-3.5-turbo-1106"
+    api_version = "2023-12-01-preview"
+    endpoint = "https://openapi-australia-east-selectstar.openai.azure.com/openai/deployments/default-gpt-35/chat/completions?api-version=2023-07-01-preview"
+
+    llm_model = BaseLLM(api_key=api_key, 
+                              model_type=model_type, 
+                              chat_model=chat_model, 
+                              api_version=api_version,
+                              endpoint=endpoint)
     rag_model = RAG()
 
     # Set prompt
@@ -35,6 +44,13 @@ if __name__ == "__main__":
     # Search data using query 
     rag_model.set_llm_model(llm_model=llm_model)
     rag_model.fit(documents=data)
-    answer = rag_model.generate_simple("김소연의 남편은 누구인가요?")
+
+    params = {
+        "stream": False, 
+        "top_p": 0.5, 
+        "frequency_penalty": 1.0,
+        "temperature": 0.3, 
+    }
+    answer = rag_model.generate_simple("김소연의 남편은 누구인가요?", params=params)
 
     print("here")
