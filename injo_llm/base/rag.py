@@ -20,13 +20,14 @@ from injo_llm.utils.prompt import fill_prompt
 
 class RAG:
     def __init__(self, llm_model: Union[BaseOpenAILLM, BaseAzureLLM] = None, openai_api_key: str = None):
+        # Setup parameter of class 
+        self.openai_api_key = openai_api_key
+        
         if llm_model is not None:
             self.set_llm_model(llm_model)
         else:
             # Set LLM model 
             self.llm_model = llm_model
-
-        self.openai_api_key = openai_api_key
             
         # Set the embedding model 
         if isinstance(self.llm_model, BaseAzureLLM) and openai_api_key is None:
