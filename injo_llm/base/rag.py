@@ -14,7 +14,7 @@ os.chdir(Path(__file__).parents[2])
 sys.path.append(str(Path(__file__).parents[2]))
 
 # Custom Libraries
-from injo_llm.base.base import BaseOpenAILLM
+from injo_llm.base.openai import BaseOpenAILLM
 from injo_llm.prompts.retrieval import retrieval_base_prompt
 from injo_llm.utils.prompt import fill_prompt
 
@@ -109,7 +109,7 @@ class RAG:
                 The prompt for the answer
         """
         # Search the related documents
-        related_doc = self.llm_model.search(prompt)
+        related_doc = self.search(prompt)
         
         # Set the prompt
         self.llm_model.set_system_prompt(system_prompt=retrieval_base_prompt, additional_info={"info": related_doc})
