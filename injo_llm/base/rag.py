@@ -16,7 +16,6 @@ sys.path.append(str(Path(__file__).parents[2]))
 # Custom Libraries
 from injo_llm import BaseOpenAILLM, BaseAzureLLM
 from injo_llm.prompts.retrieval import retrieval_base_prompt
-from injo_llm.utils.prompt import fill_prompt
 
 class RAG:
     def __init__(self, llm_model: Union[BaseOpenAILLM, BaseAzureLLM] = None, openai_api_key: str = None):
