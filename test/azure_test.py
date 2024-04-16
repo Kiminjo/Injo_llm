@@ -9,7 +9,7 @@ os.chdir(Path(__file__).parents[1])
 sys.path.append(str(Path(__file__).parents[1]))
 
 # Custom Libraries
-from injo_llm import BaseAzureLLM, RAG
+from injo_llm import AzureLLM, RAG
 from injo_llm.prompts.retrieval import retrieval_base_prompt 
 
 if __name__ == "__main__":
@@ -25,7 +25,7 @@ if __name__ == "__main__":
         f.close()
 
     # Get LLM Model
-    llm_model = BaseAzureLLM(api_key=azure_api_key,
+    llm_model = AzureLLM(api_key=azure_api_key,
                              endpoint=azure_endpoint)
     rag_model = RAG(openai_api_key=openai_api_key)
 

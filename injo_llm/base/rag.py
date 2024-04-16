@@ -14,11 +14,11 @@ os.chdir(Path(__file__).parents[2])
 sys.path.append(str(Path(__file__).parents[2]))
 
 # Custom Libraries
-from injo_llm import BaseOpenAILLM, BaseAzureLLM
+from injo_llm import OpenAILLM, AzureLLM
 from injo_llm.prompts.retrieval import retrieval_base_prompt
 
 class RAG:
-    def __init__(self, llm_model: Union[BaseOpenAILLM, BaseAzureLLM] = None, openai_api_key: str = None):
+    def __init__(self, llm_model: Union[OpenAILLM, AzureLLM] = None, openai_api_key: str = None):
         if llm_model is not None:
             self.set_llm_model(llm_model)
         else:
@@ -28,11 +28,11 @@ class RAG:
         self.openai_api_key = openai_api_key
             
         # Set the embedding model 
-        if isinstance(self.llm_model, BaseAzureLLM) and openai_api_key is None:
-            raise ValueError("Embedding is not available in BaseAzureLLM. Please provide the OpenAI API key")
-        elif isinstance(self.llm_model, BaseAzureLLM) and openai_api_key is not None:
-            self.embedding_model = BaseOpenAILLM(api_key=openai_api_key)
-        elif isinstance(self.llm_model, BaseOpenAILLM):
+        if isinstance(self.llm_model, AzureLLM) and openai_api_key is None:
+            raise ValueError("Embedding is not available in AzureLLM. Please provide the OpenAI API key")
+        elif isinstance(self.llm_model, AzureLLM) and openai_api_key is not None:
+            self.embedding_model = OpenAILLM(api_key=openai_api_key)
+        elif isinstance(self.llm_model, OpenAILLM):
             self.embedding_model = self.llm_model
         elif self.llm_model is None:
             pass
@@ -72,20 +72,20 @@ class RAG:
             pickle.dump(documents, f)
             f.close()
     
-    def set_llm_model(self, llm_model: Union[BaseOpenAILLM, BaseAzureLLM]):
+    def set_llm_model(self, llm_model: Union[OpenAILLM, AzureLLM]):
         """
         Set the LLM model for the RAG model
         
         Args:
-            - llm_model: BaseOpenAILLM
+            - llm_model: OpenAILLM
         """
         self.llm_model = llm_model
 
-        if isinstance(self.llm_model, BaseAzureLLM) and self.openai_api_key is None:
-            raise ValueError("Embedding is not available in BaseAzureLLM. Please provide the OpenAI API key")
-        elif isinstance(self.llm_model, BaseAzureLLM) and self.openai_api_key is not None:
-            self.embedding_model = BaseOpenAILLM(api_key=self.openai_api_key)
-        elif isinstance(self.llm_model, BaseOpenAILLM):
+        if isinstance(self.llm_model, AzureLLM) and self.openai_api_key is None:
+            raise ValueError("Embedding is not available in AzureLLM. Please provide the OpenAI API key")
+        elif isinstance(self.llm_model, AzureLLM) and self.openai_api_key is not None:
+            self.embedding_model = OpenAILLM(api_key=self.openai_api_key)
+        elif isinstance(self.llm_model, OpenAILLM):
             self.embedding_model = self.llm_model
 
     def search(self, query: str, db_path: Union[str, Path] = "db/rag.index", document_path: Union[str, Path] = "db/documents.pkl", top_k: int = 5):
