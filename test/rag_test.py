@@ -9,7 +9,7 @@ os.chdir(Path(__file__).parents[1])
 sys.path.append(str(Path(__file__).parents[1]))
 
 # Custom Libraries
-from injo_llm import BaseOpenAILLM, RAG
+from injo_llm import OpenAILLM, RAG
 from injo_llm.prompts.retrieval import retrieval_base_prompt 
 
 if __name__ == "__main__":
@@ -20,7 +20,7 @@ if __name__ == "__main__":
         f.close()
 
     # Get LLM Model
-    llm_model = BaseOpenAILLM(api_key=api_key)
+    llm_model = OpenAILLM(api_key=api_key)
     rag_model = RAG()
 
     # Run model
