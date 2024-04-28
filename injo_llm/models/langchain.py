@@ -17,9 +17,11 @@ from pathlib import Path
 
 
 class LangchainBaseLLM:
-    def __init__(
-        self, api_key: str, llm_name: str = "openai", model_name: str = "gpt-3.5-turbo"
-    ):
+    def __init__(self, 
+                 api_key: str, 
+                 llm_name: str = "openai", 
+                 model_name: str = "gpt-3.5-turbo"
+                 ):
         # Set params for class
         self.api_key = api_key
         self.chatbot = None
