@@ -15,10 +15,13 @@ sys.path.append(str(Path(__file__).parents[2]))
 
 # Custom Libraries
 from injo_llm import OpenAILLM, AzureLLM
-from injo_llm.prompts.retrieval import retrieval_base_prompt
+from injo_llm.prompts.library import retrieval_prompt
 
 class RAG:
-    def __init__(self, llm_model: Union[OpenAILLM, AzureLLM] = None, openai_api_key: str = None):
+    def __init__(self, 
+                 llm_model: Union[OpenAILLM, AzureLLM] = None, 
+                 openai_api_key: str = None
+                 ):
         if llm_model is not None:
             self.set_llm_model(llm_model)
         else:
@@ -133,7 +136,7 @@ class RAG:
         related_doc = self.search(prompt)
         
         # Set the prompt
-        self.llm_model.set_system_prompt(system_prompt=retrieval_base_prompt, additional_info={"info": related_doc})
+        self.llm_model.set_system_prompt(system_prompt=retrieval_prompt, additional_info={"info": related_doc})
         
         # Generate the answer
         answer = self.llm_model.generate(prompt)
