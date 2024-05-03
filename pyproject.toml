@@ -12,6 +12,10 @@ langchain-openai = "^0.1.1"
 black = "^24.3.0"
 faiss-cpu = "^1.8.0"
 openai = "^1.17.1"
+wikipedia = "^1.4.0"
+numexpr = "^2.10.0"
+groq = "^0.5.0"
+langchain-community = "^0.0.36"
 
 
 [build-system]
