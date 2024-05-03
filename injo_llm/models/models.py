@@ -1,6 +1,7 @@
 # Open AI Model
 from openai import OpenAI
 from openai.lib.azure import AzureOpenAI
+from groq import Groq
 
 # IO
 import numpy as np
@@ -73,3 +74,19 @@ class AzureLLM(BaseLLM):
         return AzureOpenAI(api_key=api_key,
                            api_version=api_version,
                            azure_endpoint=endpoint)
+    
+class Llama3LLM(BaseLLM):
+    def __init__(self, 
+                 api_key: str, 
+                 chat_model: str = "llama3-70b-8192"
+                ):
+        super().__init__()
+        
+        # Define the OpenAI client
+        self.llm_client = self.load_llm(api_key=api_key)
+        self.chat_model_name = chat_model 
+
+    def load_llm(self, 
+                 api_key: str,
+                 ):
+        return Groq(api_key=api_key)

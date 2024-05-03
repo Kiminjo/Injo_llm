@@ -1,8 +1,9 @@
-from injo_llm import OpenAILLM, AzureLLM
+from injo_llm import OpenAILLM, AzureLLM, Llama3LLM
 
 model_registry = {
     "openai": OpenAILLM,
-    "azure": AzureLLM
+    "azure": AzureLLM,
+    "llama3": Llama3LLM
 }
 
 class ModelFactory:
