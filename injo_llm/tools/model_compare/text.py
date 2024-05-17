@@ -1,5 +1,7 @@
 from injo_llm import BaseLLM 
 import pandas as pd 
+from tqdm import tqdm
+from collections import defaultdict
 
 class TextModelComparsion():
     def compare(self,
@@ -32,11 +34,12 @@ class TextModelComparsion():
         if isinstance(test_text, str):
             test_text = [test_text]
 
-        self.results = {}
-        for model in models:
-            for text in test_text:
+        self.results = defaultdict(list)
+        for model_idx, model in enumerate(models):
+            print(f"{model_idx + 1}/{len(models)}  Model: {model.__class__.__name__}  Model Name: {model.chat_model_name} Test Progress...")
+            for text in tqdm(test_text, total=len(test_text)):
                 answer = model.generate(prompt=text)
-                self.results[model.__class__.__name__] = {
+                self.results[model.__class__.__name__].append({
                     "prompt": text,
                     "response": answer,
                     "chat_model_name": model.chat_model_name,
@@ -44,7 +47,9 @@ class TextModelComparsion():
                     "input_tokens": model.input_tokens,
                     "output_tokens": model.output_tokens,
                     "total_tokens": model.total_tokens,
-                }
+                })
+                # Remove the user prompt from the input messages
+                model.clear()
         return self.results
     
     def to_report(self): 
@@ -65,8 +70,14 @@ class TextModelComparsion():
                 The report of the comparison
 
         """
-        report = pd.DataFrame(self.results).T
-        report.columns = ["prompt", "response", "chat_model_name", "latency", "input_tokens", "output_tokens", "total_tokens"]
-        return report
+        if hasattr(self, "results"):
+            report = pd.DataFrame()
+            
+            for model_name, results in self.results.items():
+                df = pd.DataFrame(results)
+                df["model_name"] = model_name
+                report = pd.concat([report, df])
+            
+            return report
         
         

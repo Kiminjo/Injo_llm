@@ -16,7 +16,7 @@ class SystemMessage:
 class AIResponseMessage:
     def __init__(self, prompt: str):
         self.prompt = {
-            "role": "ai",
+            "role": "assistant",
             "content": prompt
         }
         
