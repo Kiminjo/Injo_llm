@@ -18,10 +18,9 @@ class BaseLLM(metaclass=ABCMeta):
         if isinstance(base_prompt, BasePrompt):
             base_prompt = [base_prompt]
 
-        self.messages = []
-
+        self.input_messages = []
         if base_prompt is not None:
-            self.messages += base_prompt
+            self.input_messages += base_prompt
 
     @abstractmethod
     def load_llm(self, **kwargs):
@@ -50,19 +49,19 @@ class BaseLLM(metaclass=ABCMeta):
         # Set the user prompt 
         user_template = UserPrompt(prompt=prompt)
         user_prompt = user_template.set_prompt(**additional_info)
-        self.messages.append(user_prompt)
+        self.input_messages.append(user_prompt)
 
         # Generate the answer 
         answer = self.llm_client.chat.completions.create(
             model=self.chat_model_name,
-            messages=self.messages
+            messages=self.input_messages
         )
         answer = answer.choices[0].message.content
 
         # Save the answer to the chat history 
         ai_template = AIResponse(prompt=answer)
         ai_response = ai_template.set_prompt()
-        self.messages.append(ai_response)
+        self.input_messages.append(ai_response)
 
         return answer
     
