@@ -75,8 +75,18 @@ class BaseLLM(metaclass=ABCMeta):
 
         # Save the answer to the chat history 
         ai_response = AIResponseMessage(prompt=answer).prompt
-        
         self.input_messages.append(ai_response)
 
         return answer
     
+    def clear(self, mode: str = "last"):
+        """
+        Clear the chat history
+        """
+        if mode == "all":
+            self.input_messages = []
+        
+        elif mode == "last":
+            self.input_messages = self.input_messages[:-2]
+        else:
+            raise ValueError("mode should be either 'all' or 'last'")
