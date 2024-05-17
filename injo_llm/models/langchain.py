@@ -5,31 +5,39 @@ from langchain_core.prompts import (
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
 )
-from langchain.embeddings import OpenAIEmbeddings
+from langchain_community.embeddings import OpenAIEmbeddings
 from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
-
 
 # IO
 from typing import Dict, Union
 from pathlib import Path
 
+# ETC 
+import warnings 
+
+warnings.filterwarnings("ignore")
+
 
 class LangchainBaseLLM:
-    def __init__(
-        self, api_key: str, llm_name: str = "openai", model_name: str = "gpt-3.5-turbo"
-    ):
+    def __init__(self, 
+                 api_key: str, 
+                 llm_name: str = "openai", 
+                 model_name: str = "gpt-3.5-turbo"
+                 ):
         # Set params for class
         self.api_key = api_key
         self.chatbot = None
 
         # Set base llm model
-        self.llm = self.set_llm(llm_name=llm_name, model_name=model_name)
+        self.llm = self.set_llm(llm_name=llm_name, 
+                                model_name=model_name)
 
     def set_llm(self, llm_name: str, model_name: str):
         if llm_name == "openai":
-            llm = ChatOpenAI(openai_api_key=self.api_key, model_name=model_name)
+            llm = ChatOpenAI(openai_api_key=self.api_key, 
+                             model_name=model_name)
         return llm
 
     def set_system_prompt(self, system_prompt: str):
@@ -52,7 +60,9 @@ class LangchainBaseLLM:
     def setup_rag(self, db_path: Union[str, Path]):
         # Load the vector store
         embeddings = OpenAIEmbeddings(openai_api_key=self.api_key)
-        db = FAISS.load_local(db_path, embeddings, allow_dangerous_deserialization=True)
+        db = FAISS.load_local(db_path, 
+                              embeddings, 
+                              allow_dangerous_deserialization=True)
 
         # Set the retriever
         retriever = db.as_retriever()
