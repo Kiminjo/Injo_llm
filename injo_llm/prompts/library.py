@@ -1,4 +1,5 @@
-retrieval_base_prompt = """
+
+retrieval_prompt = """
 너는 주어진 정보를 보고 답변하는 것이 목적이야. 
 내가 아래의 [# 정보] 탭에 너가 알야할 정보를 줄게.
 
