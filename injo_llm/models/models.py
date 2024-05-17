@@ -75,6 +75,7 @@ class AzureLLM(BaseLLM):
                            api_version=api_version,
                            azure_endpoint=endpoint)
     
+
 class GroqLLM(BaseLLM):
     def __init__(self, 
                  api_key: str, 
@@ -91,6 +92,52 @@ class GroqLLM(BaseLLM):
                  ):
         return Groq(api_key=api_key)
     
+class OllamaLLM(BaseLLM):
+    def __init__(self,
+                 api_key: str,
+                 base_url: str = "http://localhost:11434/v1",
+                 chat_model: str = "llama3:latest",
+                 embedding_model: str = "llama3:latest"
+                 ):
+        super().__init__()
+
+        # Define the LM Studio client
+        self.llm_client = self.load_llm(base_url=base_url, api_key=api_key)
+        self.chat_model_name = chat_model
+        self.embedding_model_name = embedding_model
+
+    def load_llm(self, 
+                 base_url: str, 
+                 api_key: str
+                 ) -> OpenAI:
+         return OpenAI(base_url=base_url,
+                       api_key=api_key)
+    
+    def query(self, texts: Union[str, List[str]]) -> List[float]:
+        """
+        Get the embedding from the prompt
+        
+        Args:
+            - texts: str, List[str]
+                The prompt for the embedding
+            
+        Returns:
+            - embedding_vector: List[float]
+                The embedding vector from the model
+        """
+        if isinstance(texts, str):
+            texts = [texts]
+
+        # Get the embedding
+        embedding_vector = self.llm_client.embeddings.create(
+            model=self.embedding_model_name,
+            input=texts
+        )
+        embedding_vector = [vector.embedding for vector in embedding_vector.data]
+        embedding_vector = np.array(embedding_vector)
+        return embedding_vector
+    
+
 class LMStudioLLM(BaseLLM):
     def __init__(self,
                  api_key: str,

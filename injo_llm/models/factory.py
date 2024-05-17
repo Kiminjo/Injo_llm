@@ -1,16 +1,14 @@
-from injo_llm import OpenAILLM, AzureLLM, GroqLLM, LMStudioLLM
+from injo_llm import OpenAILLM, AzureLLM, GroqLLM, LMStudioLLM, OllamaLLM
 
 model_registry = {
     "openai": OpenAILLM,
     "azure": AzureLLM,
     "groq": GroqLLM,
-    "lmstudio": LMStudioLLM
+    "lmstudio": LMStudioLLM,
+    "ollama": OllamaLLM
 }
 
-class ModelFactory:
-    def __init__(self):
-        pass 
-
+class ModelFactory():
     def create_model(self, 
                      model_type: str,
                      **kwargs):
