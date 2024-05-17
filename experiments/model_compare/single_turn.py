@@ -4,22 +4,21 @@ from injo_llm import OpenAILLM, GroqLLM, OllamaLLM
 import pandas as pd 
 import yaml 
 
-# XXX for test 
 from pathlib import Path 
 os.chdir(str(Path(__file__).parent))
 
-def text_model_compare(): 
+def single_turn_text_model_compare(): 
     text_comparsion = TextModelComparsion()
 
     # Set api key 
     openai_api_key = os.environ.get("OPENAI_API_KEY")
     groq_api_key = os.environ.get("GROQ_API_KEY")
-    lmstudio_api_key = "lm_studio"
+    ollama_api_key = "ollama"
 
     # Set LLM models 
     models = [OpenAILLM(api_key=openai_api_key),
               GroqLLM(api_key=groq_api_key),
-              OllamaLLM(api_key=lmstudio_api_key)]
+              OllamaLLM(api_key=ollama_api_key)]
 
     # Load test data 
     with open("configs/data.yaml", "r") as f: 
@@ -32,6 +31,5 @@ def text_model_compare():
     report = text_comparsion.to_report()
     report.to_excel("report.xlsx")
 
-
 if __name__=="__main__":
-    text_model_compare()
+    single_turn_text_model_compare()
