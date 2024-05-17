@@ -5,15 +5,19 @@ from langchain_core.prompts import (
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
 )
-from langchain.embeddings import OpenAIEmbeddings
+from langchain_community.embeddings import OpenAIEmbeddings
 from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 
-
 # IO
 from typing import Dict, Union
 from pathlib import Path
+
+# ETC 
+import warnings 
+
+warnings.filterwarnings("ignore")
 
 
 class LangchainBaseLLM:
