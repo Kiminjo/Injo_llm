@@ -1,6 +1,6 @@
 import os 
 from injo_llm.tools import TextModelComparsion
-from injo_llm import OpenAILLM, GroqLLM, LMStudioLLM
+from injo_llm import OpenAILLM, GroqLLM, OllamaLLM
 import pandas as pd 
 import yaml 
 
@@ -19,7 +19,7 @@ def text_model_compare():
     # Set LLM models 
     models = [OpenAILLM(api_key=openai_api_key),
               GroqLLM(api_key=groq_api_key),
-              LMStudioLLM(api_key=lmstudio_api_key)]
+              OllamaLLM(api_key=lmstudio_api_key)]
 
     # Load test data 
     with open("configs/data.yaml", "r") as f: 
