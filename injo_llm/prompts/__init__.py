@@ -1,1 +1,2 @@
-from .prompts import SystemPrompt, UserPrompt, AIResponse
+from .prompts import UserPromptTemplate, SystemPromptTemplate
+from .messages import UserMessage, SystemMessage, AIResponseMessage
