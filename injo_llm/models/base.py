@@ -2,20 +2,25 @@
 from abc import ABCMeta, abstractmethod
 from typing import Dict, List, Union
 
+# ETC 
+from time import time 
+
 # Custom Libraries
-from injo_llm.prompts.prompts import BasePrompt, UserPrompt, AIResponse
+from injo_llm.prompts.prompts import BasePromptTemplate
+from injo_llm.prompts import UserMessage, AIResponseMessage
+
 
 class BaseLLM(metaclass=ABCMeta):
     """
     The base class for all LLM models
     """
     def __init__(self,
-                 base_prompt: Union[List[BasePrompt], BasePrompt] = None
+                 base_prompt: Union[List[BasePromptTemplate], BasePromptTemplate] = None
                  ):
         if isinstance(base_prompt, str):
-            raise ValueError("base_prompt should be a list of BasePrompt objects")
+            raise ValueError("base_prompt should be a list of BasePromptTemplate objects")
         
-        if isinstance(base_prompt, BasePrompt):
+        if isinstance(base_prompt, BasePromptTemplate):
             base_prompt = [base_prompt]
 
         self.input_messages = []
@@ -30,7 +35,7 @@ class BaseLLM(metaclass=ABCMeta):
         pass
 
     def generate(self, 
-                 prompt: BasePrompt, 
+                 prompt: BasePromptTemplate, 
                  additional_info: Dict = {}):
         """
         Generate the answer from the prompt
@@ -47,20 +52,30 @@ class BaseLLM(metaclass=ABCMeta):
         """
 
         # Set the user prompt 
-        user_template = UserPrompt(prompt=prompt)
-        user_prompt = user_template.set_prompt(**additional_info)
+        user_prompt = UserMessage(prompt=prompt).prompt
         self.input_messages.append(user_prompt)
 
         # Generate the answer 
+        # Measure the time it takes to generate the answer
+        start_time = time()
+        
         answer = self.llm_client.chat.completions.create(
             model=self.chat_model_name,
             messages=self.input_messages
         )
+
+        # Save the latency and tokens 
+        self.latency = time() - start_time
+        self.input_tokens = answer.usage.prompt_tokens
+        self.output_tokens = answer.usage.completion_tokens
+        self.total_tokens = answer.usage.total_tokens
+
+        # Get the answer as string form 
         answer = answer.choices[0].message.content
 
         # Save the answer to the chat history 
-        ai_template = AIResponse(prompt=answer)
-        ai_response = ai_template.set_prompt()
+        ai_response = AIResponseMessage(prompt=answer).prompt
+        
         self.input_messages.append(ai_response)
 
         return answer
