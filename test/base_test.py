@@ -14,7 +14,7 @@ sys.path.append(str(Path(__file__).parents[1]))
 
 # Custom Libraries
 from injo_llm import ModelFactory, RAG
-from injo_llm.prompts import UserPrompt, SystemPrompt
+from injo_llm.prompts import SystemMessage
 
 if __name__ == "__main__":
     # Get API Key
@@ -37,8 +37,7 @@ if __name__ == "__main__":
     </information>
     """
     
-    sys_creator = SystemPrompt(prompt=system_template)
-    system_prompt = sys_creator.set_prompt()
+    system_prompt = SystemMessage(prompt=system_template).prompt
 
     # Run OpenAI model
     openai_llm.input_messages.append(system_prompt)
