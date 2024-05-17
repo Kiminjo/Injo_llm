@@ -4,6 +4,10 @@ import sys
 
 from pathlib import Path
 
+import warnings 
+
+warnings.filterwarnings("ignore")
+
 # Set working directory and system path
 os.chdir(Path(__file__).parents[1])
 sys.path.append(str(Path(__file__).parents[1]))
@@ -14,18 +18,38 @@ from injo_llm.prompts import UserPrompt, SystemPrompt
 
 if __name__ == "__main__":
     # Get API Key
-    api_key = os.environ.get("OPENAI_API_KEY")
+    openai_api_key = os.environ.get("OPENAI_API_KEY")
+    groq_api_key = os.environ.get("GROQ_API_KEY")
 
     # Get LLM Model
-    factory = ModelFactory(model_name="openai", 
-                           api_key=api_key)
-    llm = factory.create_model()
+    factory = ModelFactory()
+    openai_llm = factory.create_model(model_type="openai", api_key=openai_api_key)
+    groq_llm = factory.create_model(model_type="groq", api_key=groq_api_key)
+    lmstudio_llm = factory.create_model(model_type="lmstudio", api_key="lmstudio")
 
     # Set prompt
-    system_template = "너는 대답할때마다, '용'으로 끝나는 문장을 사용해. 예를 들어, '안녕' 대신 '안녕용', '잘 알았어요.' 대신 '잘 알았어용' 이렇게 말이야."  
+    system_template = """
+    You are the kindergarden teacher for 5 year olds. You are teaching them about the world
+    and they have asked you a question. 
+
+    <information>
+    President of South Korea: Yoon Suk-yeol
+    </information>
+    """
     
     sys_creator = SystemPrompt(prompt=system_template)
     system_prompt = sys_creator.set_prompt()
 
-    # Run model
-    output = llm.generate("김소연의 남편은 누구인가요?")
+    # Run OpenAI model
+    openai_llm.input_messages.append(system_prompt)
+    openai_output = openai_llm.generate("Who is the president of South Korea?")
+
+    # Run Groq model
+    groq_llm.input_messages.append(system_prompt)
+    groq_output = groq_llm.generate("Who is the president of South Korea?")
+
+    # Run LMStudio model
+    lmstudio_llm.input_messages.append(system_prompt)
+    lmstudio_output = lmstudio_llm.generate("Who is the president of South Korea?")
+
+    print('here')
