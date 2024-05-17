@@ -26,6 +26,7 @@ if __name__ == "__main__":
     openai_llm = factory.create_model(model_type="openai", api_key=openai_api_key)
     groq_llm = factory.create_model(model_type="groq", api_key=groq_api_key)
     lmstudio_llm = factory.create_model(model_type="lmstudio", api_key="lmstudio")
+    ollama_llm = factory.create_model(model_type="ollama", api_key="ollama")
 
     # Set prompt
     system_template = """
@@ -40,6 +41,7 @@ if __name__ == "__main__":
     system_prompt = SystemMessage(prompt=system_template).prompt
 
     # Run OpenAI model
+    print()
     openai_llm.input_messages.append(system_prompt)
     openai_output = openai_llm.generate("Who is the president of South Korea?")
 
@@ -50,5 +52,9 @@ if __name__ == "__main__":
     # Run LMStudio model
     lmstudio_llm.input_messages.append(system_prompt)
     lmstudio_output = lmstudio_llm.generate("Who is the president of South Korea?")
+
+    # Run Ollama model
+    ollama_llm.input_messages.append(system_prompt)
+    ollama_output = ollama_llm.generate("Who is the president of South Korea?")
 
     print('here')
