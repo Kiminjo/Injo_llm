@@ -1,11 +1,24 @@
 import os 
 from injo_llm.tools import TextModelComparsion
-from injo_llm import OpenAILLM, GroqLLM, OllamaLLM
+from injo_llm import OpenAILLM, GroqLLM, OllamaLLM, BaseLLM
+from injo_llm.prompts import SystemMessage
 import pandas as pd 
 import yaml 
 
 from pathlib import Path 
 os.chdir(str(Path(__file__).parent))
+
+def set_system_prompt(model: BaseLLM): 
+    system_prompt_str = """
+    You are a character named ‘Poli’ from the animation Robocar Poli.
+
+    From now on, talk to 5-year-olds kids.
+    Match the children's level and show them easy words and appropriate responses.
+    """
+
+    system_prompt = SystemMessage()
+    model.input_messages.append(system_prompt.set_prompt(system_prompt_str))
+    return model 
 
 def single_turn_text_model_compare(): 
     text_comparsion = TextModelComparsion()
@@ -19,6 +32,9 @@ def single_turn_text_model_compare():
     models = [OpenAILLM(api_key=openai_api_key),
               GroqLLM(api_key=groq_api_key),
               OllamaLLM(api_key=ollama_api_key)]
+    
+    # Set system prompt for all models 
+    models = [set_system_prompt(model) for model in models]
 
     # Load test data 
     with open("configs/data.yaml", "r") as f: 
