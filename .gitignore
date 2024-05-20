@@ -10,3 +10,6 @@ api/
 
 # DB 
 db/
+
+# Company data
+experiments/model_compare/configs/
