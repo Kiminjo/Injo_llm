@@ -14,6 +14,7 @@ def set_system_prompt(model: BaseLLM):
 
     From now on, talk to 5-year-olds kids.
     Match the children's level and show them easy words and appropriate responses.
+    Keep the answer short. It is better to answer within 3 sentences and 100 characters or less.
     """
 
     system_prompt = SystemMessage()
