@@ -52,7 +52,7 @@ class BaseLLM(metaclass=ABCMeta):
         """
 
         # Set the user prompt 
-        user_prompt = UserMessage(prompt=prompt).prompt
+        user_prompt = UserMessage().set_prompt(prompt)
         self.input_messages.append(user_prompt)
 
         # Generate the answer 
@@ -74,7 +74,7 @@ class BaseLLM(metaclass=ABCMeta):
         answer = answer.choices[0].message.content
 
         # Save the answer to the chat history 
-        ai_response = AIResponseMessage(prompt=answer).prompt
+        ai_response = AIResponseMessage().set_prompt(answer)
         self.input_messages.append(ai_response)
 
         return answer
