@@ -31,8 +31,15 @@ def single_turn_text_model_compare():
 
     # Set LLM models 
     models = [OpenAILLM(api_key=openai_api_key),
-              GroqLLM(api_key=groq_api_key),
-              OllamaLLM(api_key=ollama_api_key)]
+              OpenAILLM(api_key=openai_api_key, chat_model="gpt-4"),
+              OpenAILLM(api_key=openai_api_key, chat_model="gpt-4-turbo"),
+              OpenAILLM(api_key=openai_api_key, chat_model="gpt-4o"),
+              GroqLLM(api_key=groq_api_key, chat_model="llama3-8b-8192"),
+              GroqLLM(api_key=groq_api_key, chat_model="gemma-7b-it"),
+              GroqLLM(api_key=groq_api_key, chat_model="mixtral-8x7b-32768"),
+              OllamaLLM(api_key=ollama_api_key, chat_model="llama3:latest"),
+              OllamaLLM(api_key=ollama_api_key, chat_model="gemma:7b"),
+              OllamaLLM(api_key=ollama_api_key, chat_model="mixtral:8x7b"),]
     
     # Set system prompt for all models 
     models = [set_system_prompt(model) for model in models]
