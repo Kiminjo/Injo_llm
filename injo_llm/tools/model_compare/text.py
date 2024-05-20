@@ -40,9 +40,9 @@ class TextModelComparsion():
             for text in tqdm(test_text, total=len(test_text)):
                 answer = model.generate(prompt=text)
                 self.results[model.__class__.__name__].append({
+                    "chat_model_name": model.chat_model_name,
                     "prompt": text,
                     "response": answer,
-                    "chat_model_name": model.chat_model_name,
                     "latency": model.latency,
                     "input_tokens": model.input_tokens,
                     "output_tokens": model.output_tokens,
