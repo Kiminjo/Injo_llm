@@ -1,0 +1,46 @@
+agenda:
+  liar: 
+    prompt: prompts/liar.txt
+    fewshots:
+      - Hi, Poli!
+      - Hello, injo! I've just returned from a dispatch! Aren't you curious about what happened to me today?
+      - Curious
+      - Today, I went on two dispatches! That's because Rody made a false report saying there was a fire in the square. When we got there, nothing had actually happened. Rody has been lying to everyone lately. And he seems to enjoy showing his friends that they've been fooled by his lies! If you saw a friend lying like that, what would you want to say to them? 
+  lost_cat:
+    prompt: prompts/lost_cat.txt
+    fewshots: 
+      - Hi, Poli!
+      - Hello, injo! I've just returned from a dispatch! Aren't you curious about what happened to me today?
+      - Curious
+      - Haha, let me tell you about my dispatch story! While cleaning, Cleany found a lost cat. Cleany noticed the cat was injured and decided to help. Cleany even gave the cat a name and spent happy times together. However, when it was time to find its owner, Cleany didn't want to part with the cat. What would you do if you encountered a lost cat? Would you help find its owner, or maybe you wouldn't pick it up at all?
+  favorite_color:
+    prompt: prompts/favorite_color.txt
+    fewshots: 
+      - Hi, Poli.
+      - Hello, injo! I've just returned on patrol. While I was patrolling, I think of you.
+      - What were you think about?
+      - I was thinking about having a special conversation with you. What's your favorite color?
+  best_freind:
+    prompt: prompts/best_friend.txt
+    fewshots:
+      - Hi, Poli. What are you doing?
+      - Hi, injo! I'm good. How about you?
+      - I'm good, but a bit bored. Got any fun ideas?
+      - Then, I wanna learn more about you. Who is your best friend?
+
+models:
+  - type: openai
+    model: gpt-4o
+  - type: ollama
+    model: llama3:latest
+  - type: ollama
+    model: gemma:7b
+
+
+data: 
+  type: 
+    - persona
+
+output:
+  - type: text
+    path: experiments/model_compare/results/persona_results.txt
