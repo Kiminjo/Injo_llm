@@ -8,7 +8,10 @@ from pathlib import Path
 os.chdir(str(Path(__file__).parent))
 
 def set_system_prompt(model: BaseLLM,
-                      system_prompt: str): 
+                      system_prompt_path: str): 
+
+    with open(system_prompt_path, "r") as f:
+        system_prompt = f.read()
 
     sys_instance = SystemMessage()
     model.input_messages.append(sys_instance.set_prompt(system_prompt))
@@ -27,10 +30,10 @@ def set_fewshots(model: BaseLLM,
     return model
 
 def set_system_and_fewshots(model: BaseLLM,
-                            system_prompt: str,
+                            system_prompt_path: str,
                             fewshots: list[str]): 
 
-    model = set_system_prompt(model, system_prompt)
+    model = set_system_prompt(model, system_prompt_path)
     model = set_fewshots(model, fewshots)
     return model
 
@@ -65,7 +68,7 @@ def single_turn_text_model_compare(agenda: str = "liar"):
             model = OllamaLLM(chat_model=model_name, api_key=ollama_api_key)
 
         model = set_system_and_fewshots(model,
-                                        system_prompt=system_prompt,
+                                        system_prompt_path=system_prompt,
                                         fewshots=fewshots)
         models.append(model)
 
