@@ -66,7 +66,7 @@ class BaseTextModel(metaclass=ABCMeta):
         if save_previous:
             self.input_prompt.append(AIResponseMessage().set_prompt(ai_message))
         else: 
-            self.input_prompt  = self.input_prompt[-1:]
+            self.input_prompt  = []
         
         return ai_message
 
