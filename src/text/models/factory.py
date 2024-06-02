@@ -1,8 +1,7 @@
-from injo_llm import OpenAILLM, AzureLLM, Llama3LLM
+from src.text import OpenAILLM, Llama3LLM
 
 model_registry = {
     "openai": OpenAILLM,
-    "azure": AzureLLM,
     "llama3": Llama3LLM
 }
 

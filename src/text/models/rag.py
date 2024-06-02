@@ -14,12 +14,11 @@ os.chdir(Path(__file__).parents[2])
 sys.path.append(str(Path(__file__).parents[2]))
 
 # Custom Libraries
-from injo_llm import OpenAILLM, AzureLLM
-from injo_llm.prompts.library import retrieval_prompt
+from src.text import OpenAILLM
 
 class RAG:
     def __init__(self, 
-                 llm_model: Union[OpenAILLM, AzureLLM] = None, 
+                 llm_model: OpenAILLM = None, 
                  openai_api_key: str = None
                  ):
         if llm_model is not None:
@@ -31,9 +30,9 @@ class RAG:
         self.openai_api_key = openai_api_key
             
         # Set the embedding model 
-        if isinstance(self.llm_model, AzureLLM) and openai_api_key is None:
+        if isinstance(self.llm_model) and openai_api_key is None:
             raise ValueError("Embedding is not available in AzureLLM. Please provide the OpenAI API key")
-        elif isinstance(self.llm_model, AzureLLM) and openai_api_key is not None:
+        elif isinstance(self.llm_model) and openai_api_key is not None:
             self.embedding_model = OpenAILLM(api_key=openai_api_key)
         elif isinstance(self.llm_model, OpenAILLM):
             self.embedding_model = self.llm_model
@@ -75,7 +74,7 @@ class RAG:
             pickle.dump(documents, f)
             f.close()
     
-    def set_llm_model(self, llm_model: Union[OpenAILLM, AzureLLM]):
+    def set_llm_model(self, llm_model: Union[OpenAILLM]):
         """
         Set the LLM model for the RAG model
         
@@ -84,9 +83,9 @@ class RAG:
         """
         self.llm_model = llm_model
 
-        if isinstance(self.llm_model, AzureLLM) and self.openai_api_key is None:
+        if isinstance(self.llm_model) and self.openai_api_key is None:
             raise ValueError("Embedding is not available in AzureLLM. Please provide the OpenAI API key")
-        elif isinstance(self.llm_model, AzureLLM) and self.openai_api_key is not None:
+        elif isinstance(self.llm_model) and self.openai_api_key is not None:
             self.embedding_model = OpenAILLM(api_key=self.openai_api_key)
         elif isinstance(self.llm_model, OpenAILLM):
             self.embedding_model = self.llm_model

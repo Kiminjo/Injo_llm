@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 from typing import Dict, List, Union
 
 # Custom Libraries
-from injo_llm.prompts.prompts import BasePrompt, UserPrompt, AIResponse
+from src.text.prompts import BasePrompt, UserPrompt, AIResponse
 
 class BaseLLM(metaclass=ABCMeta):
     """

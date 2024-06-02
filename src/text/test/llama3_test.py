@@ -10,8 +10,8 @@ os.chdir(Path(__file__).parents[1])
 sys.path.append(str(Path(__file__).parents[1]))
 
 # Custom Libraries
-from injo_llm import ModelFactory
-from injo_llm.prompts import SystemPrompt
+from src.text import ModelFactory
+from src.text.prompts import SystemPrompt
 
 if __name__ == "__main__":
     # Get API Key

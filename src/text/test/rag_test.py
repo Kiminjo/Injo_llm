@@ -9,8 +9,8 @@ os.chdir(Path(__file__).parents[1])
 sys.path.append(str(Path(__file__).parents[1]))
 
 # Custom Libraries
-from injo_llm import ModelFactory, RAG
-from injo_llm.prompts.library import retrieval_prompt 
+from src.text import ModelFactory, RAG
+from src.text.prompts.library import retrieval_prompt 
 
 if __name__ == "__main__":
     # Get API Key
