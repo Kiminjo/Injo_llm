@@ -1,29 +1,20 @@
 # IO
 from abc import ABCMeta, abstractmethod
-from typing import Dict, List, Union
+import numpy as np
 
 # ETC 
-from time import time 
+from time import time
 
 # Custom Libraries
-from src.text.prompts import BasePrompt, UserPrompt, AIResponse
+from ..prompts import UserMessage, AIResponseMessage
 
-class BaseLLM(metaclass=ABCMeta):
+
+class BaseTextModel(metaclass=ABCMeta):
     """
     The base class for all LLM models
     """
-    def __init__(self,
-                 base_prompt: Union[List[BasePromptTemplate], BasePromptTemplate] = None
-                 ):
-        if isinstance(base_prompt, str):
-            raise ValueError("base_prompt should be a list of BasePromptTemplate objects")
-        
-        if isinstance(base_prompt, BasePromptTemplate):
-            base_prompt = [base_prompt]
-
-        self.input_messages = []
-        if base_prompt is not None:
-            self.input_messages += base_prompt
+    def __init__(self):
+        self.input_prompt = []
 
     @abstractmethod
     def load_llm(self, **kwargs):
@@ -32,59 +23,82 @@ class BaseLLM(metaclass=ABCMeta):
         """
         pass
 
-    def generate(self, 
-                 prompt: BasePromptTemplate, 
-                 additional_info: Dict = {}):
+    def generate(self,
+                 prompt: str,
+                 save_previous: bool = True
+                 ) -> str :
         """
-        Generate the answer from the prompt
-        
+        Generate a response from the model
+
         Args:
             - prompt: str
-                The prompt for the chat
-            - additional_info: Dict
-                The additional information to fill in the prompt
-        
+                The prompt for the model
+            - save_previous: bool
+                Whether to save the previous prompt
+
         Returns:
-            - answer: str
-                The answer from the model
+            - response: str
+                The response from the model
         """
 
-        # Set the user prompt 
-        user_prompt = UserMessage().set_prompt(prompt)
-        self.input_messages.append(user_prompt)
+        if isinstance(prompt, str):
+            prompt = UserMessage().set_prompt(prompt)
 
-        # Generate the answer 
-        # Measure the time it takes to generate the answer
+        # Set the prompt 
+        self.input_prompt.append(prompt)
+
+        # Generate the response
         start_time = time()
-        
-        answer = self.llm_client.chat.completions.create(
-            model=self.chat_model_name,
-            messages=self.input_messages
+        response = self.llm_client.chat.completions.create(
+            model=self.model_name,
+            messages=self.input_prompt,
         )
-
-        # Save the latency and tokens 
-        self.latency = time() - start_time
-        self.input_tokens = answer.usage.prompt_tokens
-        self.output_tokens = answer.usage.completion_tokens
-        self.total_tokens = answer.usage.total_tokens
-
-        # Get the answer as string form 
-        answer = answer.choices[0].message.content
-
-        # Save the answer to the chat history 
-        ai_response = AIResponseMessage().set_prompt(answer)
-        self.input_messages.append(ai_response)
-
-        return answer
-    
-    def clear(self, mode: str = "last"):
-        """
-        Clear the chat history
-        """
-        if mode == "all":
-            self.input_messages = []
+        latency = time() - start_time
         
-        elif mode == "last":
-            self.input_messages = self.input_messages[:-2]
-        else:
-            raise ValueError("mode should be either 'all' or 'last'")
+        # Get the response and other information
+        ai_message = response.choices[0].message.content
+        self.latency = latency
+        self.input_tokens = response.usage.prompt_tokens
+        self.output_tokens = response.usage.completion_tokens
+        self.total_tokens = response.usage.total_tokens
+
+        # Save the previous prompt
+        if save_previous:
+            self.input_prompt.append(AIResponseMessage().set_prompt(ai_message))
+        else: 
+            self.input_prompt  = self.input_prompt[-1:]
+        
+        return ai_message
+
+        
+
+class BaseTextEmbeddingModel(metaclass=ABCMeta):
+    """
+    The base class for all text embedding models
+    """
+    def __init__(self):
+        pass
+
+    def embedding(self, prompt: str | list[str]) -> list[float]:
+        """
+        Get the embedding from the prompt
+        
+        Args:
+            - prompt: str, List[str]
+                The prompt for the embedding
+            
+        Returns:
+            - embedding_vector: List[float]
+                The embedding vector from the model
+        """
+        if isinstance(prompt, str):
+            prompt = [prompt]
+
+        # Get the embedding
+        embedding_vector = self.llm_client.embeddings.create(
+            model=self.model_name,
+            input=prompt
+        )
+        embedding_vector = [vector.embedding for vector in embedding_vector.data]
+        embedding_vector = np.array(embedding_vector)
+        return embedding_vector
