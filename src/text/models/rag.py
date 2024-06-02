@@ -26,8 +26,6 @@ class RAG:
         else:
             # Set LLM model 
             self.llm_model = llm_model
-
-        self.openai_api_key = openai_api_key
             
         # Set the embedding model 
         if isinstance(self.llm_model) and openai_api_key is None:

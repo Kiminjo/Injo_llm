@@ -17,6 +17,9 @@ numexpr = "^2.10.0"
 groq = "^0.5.0"
 langchain-community = "^0.0.36"
 langchain-core = "^0.1.52"
+pandas = "^2.2.2"
+openpyxl = "^3.1.2"
+ollama = "^0.2.0"
 
 
 [build-system]
