@@ -14,17 +14,21 @@ router = APIRouter()
 
 class GenerateRequest(BaseModel):
     prompt: str 
-    model_type: str 
-    model_name: str 
+    llm_name: str 
     system_prompt: str = None
     api_key: str = None
     base_url: str = None
-    
 
-@router.post("/generate")
-def generate(generate_request: GenerateRequest):
-    llm = TextModelFactory().create_model(model_type=generate_request.model_type, 
-                                          model_name=generate_request.model_name, 
+class EmbeddingRequest(BaseModel):
+    prompt: str 
+    llm_name: str 
+    api_key: str = None
+    base_url: str = None
+    
+@router.post("/{llm_type}/generate")
+def generate(llm_type: str, generate_request: GenerateRequest):
+    llm = TextModelFactory().create_model(model_type=llm_type, 
+                                          model_name=generate_request.llm_name, 
                                           api_key=generate_request.api_key)
     
     if generate_request.system_prompt:
@@ -32,3 +36,13 @@ def generate(generate_request: GenerateRequest):
     
     return {"response": llm.generate(prompt=generate_request.prompt, 
                                      save_previous=False)}
+
+@router.post("/{llm_type}/embedding")
+def embedding(llm_type: str, embedding_request: EmbeddingRequest):
+    llm = TextModelFactory().create_embedding_model(model_type=llm_type, 
+                                                    model_name=embedding_request.llm_name, 
+                                                    api_key=embedding_request.api_key)
+    
+    embedding_vector = llm.embedding(prompt=embedding_request.prompt)
+    embedding_vector = embedding_vector.tolist()
+    return {"embedding": embedding_vector}
